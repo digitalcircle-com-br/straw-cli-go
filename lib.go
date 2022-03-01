@@ -24,10 +24,10 @@ type ReqMsg struct {
 }
 
 type MemoryResponseWriter struct {
-	buf     *bytes.Buffer `json:"-"`
-	Data    []byte        `json:"data"`
-	Status  int           `json:"status"`
-	Headers http.Header   `json:"header"`
+	buf     *bytes.Buffer
+	Data    []byte      `json:"data"`
+	Status  int         `json:"status"`
+	Headers http.Header `json:"header"`
 }
 
 func (m *MemoryResponseWriter) Write(b []byte) (int, error) {
@@ -98,14 +98,14 @@ func handle(c *websocket.Conn) error {
 	out := &ReqMsg{}
 	out.Id = ci.Id
 
+	//if err != nil {
+	//	out.Err = err.Error()
+	//
+	//} else {
+	out.Data, err = res.JsonBytes()
 	if err != nil {
-		out.Err = err.Error()
-
-	} else {
-		out.Data, err = res.JsonBytes()
-		if err != nil {
-			log.Printf("Error marshalling response: %s", err.Error())
-		}
+		log.Printf("Error marshalling response: %s", err.Error())
+		//	}
 	}
 
 	err = c.WriteJSON(out)
@@ -180,7 +180,7 @@ type Opts struct {
 
 func Serve(o *Opts) error {
 	if o.Url == "" {
-		o.Url = "wss://straw.digitalcircle.com.br/v2"
+		o.Url = "wss://straw.digitalcircle.com.br/v2/__ws"
 	}
 	for {
 		serveOnce(o)
